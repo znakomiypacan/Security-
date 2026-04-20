@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПЦО - Пульт центральной охраны</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2);
+        }
+        .user-info {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .user-info h2 { font-size: 20px; font-weight: 600; }
+        h1 { font-size: 22px; font-weight: 600; color: #1e293b; margin-bottom: 20px; }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .tab:hover { background: #f1f5f9; color: #1e3c72; }
+        .tab.active { background: #eef2ff; color: #2a5298; }
+        
+        .request-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .request-card:hover {
+            border-color: #2a5298;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .opening-card {
+            border-left: 4px solid #ff4d4d;
+        }
+        .opening-card.confirmed {
+            border-left-color: #10b981;
+        }
+        
+        .btn-approve {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-right: 12px;
+            font-weight: 500;
+        }
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .duration-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #fef3c7;
+            color: #d97706;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 12px;
+        }
+        .logout {
+            background: #ef4444;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .file-preview {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+        }
+        .file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #334155;
+            font-size: 13px;
+        }
+        .empty-state { text-align: center; padding: 60px; color: #94a3b8; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content { max-width: 90%; max-height: 90%; border-radius: 16px; }
+        .modal-content-pdf { width: 90%; height: 90%; border: none; border-radius: 16px; }
+        .close-modal { position: absolute; top: 20px; right: 35px; color: white; font-size: 40px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="user-info">
+                <div><h2><i class="fas fa-tower-broadcast"></i> ПЦО - Пульт центральной охраны</h2><p>Добро пожаловать, <span id="userName"></span></p></div>
+                <button class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="showPCOTab('pending')"><i class="fas fa-clock"></i> Заявки на согласование</button>
+                <button class="tab" onclick="showPCOTab('openings')"><i class="fas fa-door-open"></i> Открытие объектов</button>
+                <button class="tab" onclick="showPCOTab('history')"><i class="fas fa-history"></i> История открытий</button>
+            </div>
+
+            <!-- Вкладка: Заявки на согласование -->
+            <div id="pendingTab">
+                <div id="pendingRequests"></div>
+            </div>
+
+            <!-- Вкладка: Открытие объектов -->
+            <div id="openingsTab" style="display: none;">
+                <h1><i class="fas fa-door-open"></i> Уведомления об открытии</h1>
+                <div id="openingsList"></div>
+            </div>
+
+            <!-- Вкладка: История открытий -->
+            <div id="openingsHistoryTab" style="display: none;">
+                <h1><i class="fas fa-history"></i> История открытий объектов</h1>
+                <div id="openingsHistoryList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeModalIfBackground(event)">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage" style="display: none;">
+        <iframe class="modal-content-pdf" id="modalPdf" style="display: none;"></iframe>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        function openFile(url, type) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            const pdf = document.getElementById('modalPdf');
+            img.style.display = 'none';
+            pdf.style.display = 'none';
+            if (type === 'pdf') {
+                pdf.style.display = 'block';
+                pdf.src = url;
+            } else {
+                img.style.display = 'block';
+                img.src = url;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.getElementById('modalPdf').src = '';
+        }
+
+        function closeModalIfBackground(e) {
+            if (e.target === document.getElementById('imageModal')) closeModal();
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        function getFileType(f) {
+            const ext = f.split('.').pop().toLowerCase();
+            return ['jpg','jpeg','png','gif'].includes(ext) ? 'image' : ext === 'pdf' ? 'pdf' : 'other';
+        }
+
+        function checkAuth() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || (currentUser.role !== 'guard' && currentUser.role !== 'chief') || currentUser.guard_post !== 'pco') {
+                window.location.href = '/';
+            } else {
+                document.getElementById('userName').innerHTML = currentUser.full_name;
+                loadPending();
+                loadOpenings();
+                loadOpeningsHistory();
+            }
+        }
+
+        // Заявки на согласование
+        async function loadPending() {
+            const res = await fetch('/api/pco/pending');
+            const requests = await res.json();
+            const container = document.getElementById('pendingRequests');
+            if (!requests.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i> Нет заявок на согласование</div>';
+                return;
+            }
+            container.innerHTML = requests.map(req => {
+                let filesHtml = '';
+                if (req.files) {
+                    const files = JSON.parse(req.files);
+                    if (files.length) {
+                        filesHtml = '<div class="file-preview">';
+                        files.forEach(f => {
+                            const t = getFileType(f);
+                            if (t === 'image') filesHtml += `<img src="/uploads/${f}" onclick="openFile('/uploads/${f}','image')">`;
+                            else if (t === 'pdf') filesHtml += `<a class="file-link" onclick="openFile('/uploads/${f}','pdf')"><i class="fas fa-file-pdf"></i> ${f.substring(0,30)}...</a>`;
+                            else filesHtml += `<a href="/uploads/${f}" target="_blank" class="file-link"><i class="fas fa-file"></i> ${f}</a>`;
+                        });
+                        filesHtml += '</div>';
+                    }
+                }
+                const isLong = req.duration_days > 5;
+                return `<div class="request-card">
+                    <h3>Заявка №${req.id}</h3>
+                    <p><strong>Отправитель:</strong> ${req.sender_name}</p>
+                    <p><strong>Тип:</strong> ${req.type === 'car' ? 'Машина' : 'Человек'}</p>
+                    <p><strong>Описание:</strong> ${req.description}</p>
+                    <p><strong>Период:</strong> ${req.date_from} — ${req.date_to} (${req.duration_days} дней)</p>
+                    ${filesHtml}
+                    <div style="margin-top: 16px;">
+                        <button class="btn-approve" onclick="approve(${req.id})"><i class="fas fa-check"></i> Согласовать</button>
+                        <button class="btn-reject" onclick="reject(${req.id})"><i class="fas fa-times"></i> Отклонить</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function approve(id) {
+            const res = await fetch(`/api/pco/approve/${id}`, { method: 'POST' });
+            if (res.ok) {
+                alert('Заявка согласована ПЦО');
+                loadPending();
+            } else {
+                alert('Ошибка согласования');
+            }
+        }
+
+        async function reject(id) {
+            const reason = prompt('Укажите причину отказа:');
+            if (reason && reason.trim()) {
+                const res = await fetch(`/api/pco/reject/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                if (res.ok) {
+                    alert('Отказ отправлен сотруднику');
+                    loadPending();
+                }
+            }
+        }
+
+        // Уведомления об открытии
+        async function loadOpenings() {
+            const res = await fetch('/api/pco/openings');
+            const openings = await res.json();
+            const container = document.getElementById('openingsList');
+            
+            if (!openings.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-door-closed"></i> Нет активных уведомлений</div>';
+                return;
+            }
+            
+            container.innerHTML = openings.map(o => `
+                <div class="request-card opening-card">
+                    <h3><i class="fas fa-door-open"></i> ${o.object_type === 'shop' ? 'Цех' : 'Склад'} №${o.object_number}</h3>
+                    <p><strong>Сотрудник:</strong> ${o.sender_name}</p>
+                    <p><strong>Время:</strong> ${new Date(o.created_at).toLocaleString()}</p>
+                    <p><strong>Причина:</strong> ${o.description || 'Не указана'}</p>
+                    <div style="margin-top: 16px;">
+                        <button class="btn-approve" onclick="confirmOpening(${o.id})"><i class="fas fa-check"></i> Подтвердить получение</button>
+                        <button class="btn-reject" onclick="closeOpening(${o.id})"><i class="fas fa-door-closed"></i> Закрыть объект</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadOpeningsHistory() {
+            const res = await fetch('/api/pco/openings/history');
+            const openings = await res.json();
+            const container = document.getElementById('openingsHistoryList');
+            
+            if (!openings.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-archive"></i> История пуста</div>';
+                return;
+            }
+            
+            container.innerHTML = openings.map(o => `
+                <div class="request-card ${o.status === 'confirmed' ? 'confirmed' : ''}">
+                    <h3>${o.object_type === 'shop' ? '🏭 Цех' : '📦 Склад'} №${o.object_number}</h3>
+                    <p><strong>Сотрудник:</strong> ${o.sender_name}</p>
+                    <p><strong>Открыто:</strong> ${new Date(o.created_at).toLocaleString()}</p>
+                    ${o.confirmed_at ? `<p><strong>Подтверждено:</strong> ${new Date(o.confirmed_at).toLocaleString()} (${o.confirmed_by})</p>` : ''}
+                    <p><strong>Статус:</strong> ${o.status === 'confirmed' ? '✅ Подтверждено' : '🔒 Закрыто'}</p>
+                </div>
+            `).join('');
+        }
+
+        async function confirmOpening(id) {
+            const res = await fetch(`/api/pco/opening/confirm/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ confirmed_by: currentUser.full_name })
+            });
+            if (res.ok) {
+                alert('Уведомление подтверждено');
+                loadOpenings();
+                loadOpeningsHistory();
+            } else {
+                alert('Ошибка подтверждения');
+            }
+        }
+
+        async function closeOpening(id) {
+            if (confirm('Подтвердите закрытие объекта?')) {
+                const res = await fetch(`/api/pco/opening/close/${id}`, { method: 'POST' });
+                if (res.ok) {
+                    alert('Объект закрыт');
+                    loadOpenings();
+                    loadOpeningsHistory();
+                } else {
+                    alert('Ошибка закрытия');
+                }
+            }
+        }
+
+        function showPCOTab(tab) {
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                if ((tab === 'pending' && i === 0) || (tab === 'openings' && i === 1) || (tab === 'history' && i === 2)) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            
+            document.getElementById('pendingTab').style.display = tab === 'pending' ? 'block' : 'none';
+            document.getElementById('openingsTab').style.display = tab === 'openings' ? 'block' : 'none';
+            document.getElementById('openingsHistoryTab').style.display = tab === 'history' ? 'block' : 'none';
+            
+            if (tab === 'pending') loadPending();
+            if (tab === 'openings') loadOpenings();
+            if (tab === 'history') loadOpeningsHistory();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
+        }
+
+        checkAuth();
+        setInterval(() => {
+            loadPending();
+            loadOpenings();
+        }, 10000);
+    </script>
+</body>
+</html>

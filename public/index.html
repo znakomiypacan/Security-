@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>СПЛАВ | Система служебных записок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e8edf5 0%, #dce3ec 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* === ФОН === */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 30% 40%, rgba(200, 77, 77, 0.08), transparent 60%),
+                        radial-gradient(ellipse at 70% 60%, rgba(200, 77, 77, 0.05), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === ЯРКИЕ СОЛНЕЧНЫЕ ЛУЧИ === */
+        .sun-rays {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .sun-ray {
+            position: absolute;
+            top: -50%;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.5) 20%,
+                rgba(255, 255, 255, 0.1) 40%,
+                rgba(255, 255, 255, 0.3) 60%,
+                rgba(255, 255, 255, 0) 100%);
+            animation: rayMove 10s ease-in-out infinite;
+        }
+
+        .sun-ray-1 { left: -15%; transform: rotate(25deg); animation-delay: 0s; width: 120%; }
+        .sun-ray-2 { left: 5%; transform: rotate(15deg); animation-delay: 2.5s; width: 110%; }
+        .sun-ray-3 { left: 25%; transform: rotate(5deg); animation-delay: 5s; width: 100%; }
+        .sun-ray-4 { left: 45%; transform: rotate(-5deg); animation-delay: 7.5s; width: 110%; }
+
+        @keyframes rayMove {
+            0% { opacity: 0; transform: rotate(15deg) scale(1); }
+            15% { opacity: 0.7; }
+            30% { opacity: 1; }
+            60% { opacity: 0.6; }
+            100% { opacity: 0; transform: rotate(15deg) scale(1.15); }
+        }
+
+        /* === ЯРКИЕ ВЕРТИКАЛЬНЫЕ ЛУЧИ === */
+        .vertical-rays {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .v-ray {
+            position: absolute;
+            bottom: 0;
+            width: 3px;
+            height: 0;
+            background: linear-gradient(0deg, transparent, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3), transparent);
+            border-radius: 50%;
+            animation: vRayGlow 4s ease-in-out infinite;
+        }
+
+        .v-ray-1 { left: 10%; animation-delay: 0s; }
+        .v-ray-2 { left: 25%; animation-delay: 0.8s; }
+        .v-ray-3 { left: 40%; animation-delay: 1.6s; }
+        .v-ray-4 { left: 55%; animation-delay: 2.4s; }
+        .v-ray-5 { left: 70%; animation-delay: 3.2s; }
+        .v-ray-6 { left: 85%; animation-delay: 4s; }
+
+        @keyframes vRayGlow {
+            0%, 100% { opacity: 0; height: 0; }
+            30% { opacity: 0.8; height: 35%; }
+            60% { opacity: 0.4; height: 50%; }
+            80% { opacity: 0.2; height: 30%; }
+        }
+
+        /* === СВЕТОВЫЕ СФЕРЫ === */
+        .light-spheres {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .light-sphere {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: sphereFloat 12s infinite ease-in-out;
+        }
+
+        .sphere-1 { width: 500px; height: 500px; top: -200px; left: -200px; }
+        .sphere-2 { width: 400px; height: 400px; bottom: -150px; right: -150px; animation-delay: 4s; }
+        .sphere-3 { width: 300px; height: 300px; top: 40%; left: 60%; animation-delay: 8s; }
+
+        @keyframes sphereFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            50% { transform: translate(50px, 50px) scale(1.3); opacity: 0.6; }
+        }
+
+        /* === СЕТКА === */
+        .grid {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(200, 77, 77, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 77, 77, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === ЯРКИЕ ИСКРЫ === */
+        .sparkles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #fff, rgba(255, 255, 255, 0.8));
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+            animation: sparkleFloat 8s infinite ease-in-out;
+        }
+
+        @keyframes sparkleFloat {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-250px) translateX(120px); opacity: 0; }
+        }
+
+        /* === ОСНОВНОЙ КОНТЕЙНЕР === */
+        .login-wrapper {
+            position: relative;
+            z-index: 20;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* === КАРТОЧКА === */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 40px 44px;
+            width: 540px;
+            max-width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 30px 50px -15px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* === ЛОГОТИП === */
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            width: 325px;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: #8a8a9a;
+            letter-spacing: 3px;
+            margin-top: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        /* === ПОЛЯ ВВОДА === */
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-field {
+            position: relative;
+        }
+
+        .input-field input {
+            width: 100%;
+            background: #ffffff;
+            border: 1.5px solid #e8ecef;
+            padding: 15px 20px;
+            border-radius: 60px;
+            color: #2c3e50;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #c84d4d;
+            box-shadow: 0 0 0 3px rgba(200, 77, 77, 0.08);
+        }
+
+        .input-field input::placeholder {
+            color: #b0b8c5;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #b0b8c5;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .input-field input:focus + .input-icon {
+            color: #c84d4d;
+        }
+
+        /* === КНОПКА === */
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #c84d4d, #b33e3e);
+            border: none;
+            padding: 15px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 16px;
+            box-shadow: 0 4px 12px rgba(200, 77, 77, 0.2);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(200, 77, 77, 0.3);
+        }
+
+        /* === ОШИБКА === */
+        .error {
+            background: #fff5f5;
+            border-left: 3px solid #c84d4d;
+            color: #c84d4d;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            display: none;
+        }
+
+        /* === СТАТУС === */
+        .status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #8a8a9a;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(200, 77, 77, 0.15);
+            z-index: 30;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 6px #10b981;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* === ВЕРСИЯ === */
+        .version {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 11px;
+            color: #a0a8b5;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(200, 77, 77, 0.15);
+            z-index: 30;
+        }
+
+        /* === АДАПТИВ === */
+        @media (max-width: 640px) {
+            .glass-card {
+                padding: 30px 24px;
+                width: 100%;
+                max-width: 460px;
+            }
+            .logo-icon {
+                width: 220px;
+            }
+            .sun-rays, .vertical-rays, .light-spheres {
+                opacity: 0.5;
+            }
+            .status, .version {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 24px 20px;
+            }
+            .logo-icon {
+                width: 180px;
+            }
+            .sparkles {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <!-- Яркие солнечные лучи -->
+    <div class="sun-rays">
+        <div class="sun-ray sun-ray-1"></div>
+        <div class="sun-ray sun-ray-2"></div>
+        <div class="sun-ray sun-ray-3"></div>
+        <div class="sun-ray sun-ray-4"></div>
+    </div>
+
+    <!-- Яркие вертикальные лучи -->
+    <div class="vertical-rays">
+        <div class="v-ray v-ray-1"></div>
+        <div class="v-ray v-ray-2"></div>
+        <div class="v-ray v-ray-3"></div>
+        <div class="v-ray v-ray-4"></div>
+        <div class="v-ray v-ray-5"></div>
+        <div class="v-ray v-ray-6"></div>
+    </div>
+
+    <!-- Световые сферы -->
+    <div class="light-spheres">
+        <div class="light-sphere sphere-1"></div>
+        <div class="light-sphere sphere-2"></div>
+        <div class="light-sphere sphere-3"></div>
+    </div>
+
+    <div class="grid"></div>
+    
+    <div class="sparkles" id="sparkles"></div>
+
+    <div class="login-wrapper">
+        <div class="glass-card">
+            <div class="logo">
+                <img src="/logo.png" alt="СПЛАВ" class="logo-icon">
+                <div class="logo-sub">СИСТЕМА СЛУЖЕБНЫХ ЗАПИСОК</div>
+            </div>
+            
+            <div class="error" id="errorMsg"></div>
+            
+            <div class="input-group">
+                <div class="input-field">
+                    <input type="text" id="username" placeholder="ЛОГИН" autocomplete="off">
+                    <span class="input-icon">→</span>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <div class="input-field">
+                    <input type="password" id="password" placeholder="ПАРОЛЬ">
+                    <span class="input-icon">●</span>
+                </div>
+            </div>
+            
+            <button class="login-btn" onclick="login()">ВОЙТИ</button>
+        </div>
+    </div>
+
+    <div class="status">
+        <div class="status-dot"></div>
+        <span>СИСТЕМА АКТИВНА</span>
+    </div>
+
+    <div class="version">
+        <span>СПЛАВ v5.0</span>
+    </div>
+
+    <script>
+        // Генерация ярких искр (больше частиц)
+        function createSparkles() {
+            const container = document.getElementById('sparkles');
+            for (let i = 0; i < 150; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                const size = Math.random() * 5 + 2;
+                sparkle.style.width = size + 'px';
+                sparkle.style.height = size + 'px';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 8 + 's';
+                sparkle.style.animationDuration = Math.random() * 10 + 5 + 's';
+                container.appendChild(sparkle);
+            }
+        }
+        createSparkles();
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMsg');
+            
+            if (!username || !password) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Заполните все поля';
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+                return;
+            }
+            
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+                localStorage.setItem('currentUser', JSON.stringify(data));
+                
+                if (data.role === 'admin') {
+                    window.location.href = '/admin.html';
+                } else if (data.role === 'employee') {
+                    window.location.href = '/employee.html';
+                } else if (data.role === 'chief') {
+                    window.location.href = '/chief.html';
+                } else if (data.role === 'guard') {
+                    if (data.guard_post === 'pco') {
+                        window.location.href = '/pco.html';
+                    } else {
+                        window.location.href = '/guard.html';
+                    }
+                }
+            } else {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Неверный логин или пароль';
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+            }
+        }
+        
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Охрана - Пост наблюдения</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2);
+        }
+        .user-info {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .user-info h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .user-info p { font-size: 14px; opacity: 0.9; }
+        
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        .tab {
+            padding: 10px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.2s ease;
+            border-radius: 12px;
+        }
+        .tab:hover { color: #1e3c72; background: #f1f5f9; }
+        .tab.active {
+            color: #2a5298;
+            background: #eef2ff;
+            font-weight: 600;
+        }
+        
+        .stats {
+            background: #f1f5f9;
+            padding: 12px 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+        }
+        
+        .request-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .request-card:hover {
+            border-color: #2a5298;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .request-card.completed { border-left: 4px solid #10b981; background: #f0fdf4; }
+        .request-card.rejected { border-left: 4px solid #ef4444; background: #fef2f2; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-car { background: #dbeafe; color: #2563eb; }
+        .badge-person { background: #dcfce7; color: #16a34a; }
+        .badge-approved { background: #dcfce7; color: #16a34a; }
+        .badge-completed { background: #e2e8f0; color: #475569; }
+        .badge-rejected { background: #fee2e2; color: #dc2626; }
+        
+        .btn-complete {
+            background: #f59e0b;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        .btn-complete:hover { background: #d97706; }
+        
+        .logout {
+            background: #ef4444;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .logout:hover { background: #dc2626; }
+        
+        .file-preview {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .file-preview img:hover { transform: scale(1.05); border-color: #2a5298; }
+        .file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #334155;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .file-link:hover { background: #e2e8f0; }
+        
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+        .search-bar input:focus { outline: none; border-color: #2a5298; }
+        .search-bar button {
+            background: #64748b;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .empty-state { text-align: center; padding: 60px; color: #94a3b8; }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .chat-header h3 { font-size: 18px; font-weight: 600; color: #1e293b; }
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+        }
+        .message {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .message.sent {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.received {
+            background: white;
+            color: #1e293b;
+            margin-right: auto;
+            border: 1px solid #e2e8f0;
+        }
+        .message-header {
+            font-size: 11px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .message.sent .message-header { color: #cbd5e1; }
+        .message.received .message-header { color: #64748b; }
+        .message-sender { font-weight: 600; }
+        .message-recipient { font-style: italic; font-size: 10px; }
+        .message-time { font-size: 10px; }
+        .message-text { font-size: 14px; line-height: 1.4; }
+        
+        .chat-input {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .chat-input input {
+            flex: 2;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+        .chat-input input:focus { outline: none; border-color: #2a5298; }
+        .chat-input button {
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .recipient-select {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .recipient-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .recipient-group span { font-weight: 500; color: #334155; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content { max-width: 90%; max-height: 90%; border-radius: 16px; }
+        .modal-content-pdf { width: 90%; height: 90%; border: none; border-radius: 16px; }
+        .close-modal { position: absolute; top: 20px; right: 35px; color: white; font-size: 40px; cursor: pointer; }
+        
+        @media (max-width: 768px) {
+            .message { max-width: 90%; }
+            .recipient-group { width: 100%; }
+            .chat-input input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="user-info">
+                <div>
+                    <h2><span id="userName"></span></h2>
+                    <p id="postType"></p>
+                </div>
+                <button class="logout" onclick="logout()">Выйти</button>
+            </div>
+            <div class="stats" id="stats"></div>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('active')">Активные заявки</button>
+                <button class="tab" onclick="showTab('archive')">Архив</button>
+                <button class="tab" onclick="showTab('chat')">Чат <span id="unreadCount" class="unread-badge" style="display: none;">0</span></button>
+            </div>
+
+            <div id="activeTab">
+                <div id="activeRequests"></div>
+            </div>
+
+            <div id="archiveTab" style="display: none;">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Поиск по тексту или отправителю..." onkeyup="loadArchive()">
+                    <input type="date" id="dateFrom" onchange="loadArchive()">
+                    <span>до</span>
+                    <input type="date" id="dateTo" onchange="loadArchive()">
+                    <button onclick="clearFilters()">Сбросить</button>
+                </div>
+                <div id="archiveRequests"></div>
+            </div>
+
+            <div id="chatTab" style="display: none;">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h3><i class="fas fa-comments"></i> Чат постов охраны</h3>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div style="text-align: center; color: #94a3b8; padding: 40px;">Загрузка сообщений...</div>
+                    </div>
+                    <div class="chat-input">
+                        <div class="recipient-group">
+                            <span><i class="fas fa-share"></i> Кому:</span>
+                            <select id="recipientSelect" class="recipient-select">
+                                <option value="all">Всем постам</option>
+                                <option value="post4">Пост N4 (Машины)</option>
+                                <option value="post1">Пост N1 (Люди)</option>
+                                <option value="pco">ПЦО</option>
+                            </select>
+                        </div>
+                        <input type="text" id="messageInput" placeholder="Введите сообщение..." onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeModalIfBackground(event)">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage" style="display: none;">
+        <iframe class="modal-content-pdf" id="modalPdf" style="display: none;"></iframe>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentTab = 'active';
+        let postNames = {};
+        let lastMessageCount = 0;
+        let pollingInterval = null;
+
+        function playSound() {
+            try {
+                const beep = new Audio('data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==');
+                beep.play().catch(e => console.log('Звук не воспроизведён'));
+            } catch(e) {}
+        }
+
+        function openFile(fileUrl, fileType) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const modalPdf = document.getElementById('modalPdf');
+            modalImg.style.display = 'none';
+            modalPdf.style.display = 'none';
+            if (fileType === 'pdf') {
+                modalPdf.style.display = 'block';
+                modalPdf.src = fileUrl;
+            } else if (fileType === 'image') {
+                modalImg.style.display = 'block';
+                modalImg.src = fileUrl;
+            } else {
+                window.open(fileUrl, '_blank');
+                return;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.getElementById('modalPdf').src = '';
+        }
+
+        function closeModalIfBackground(event) {
+            if (event.target === document.getElementById('imageModal')) closeModal();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        function getFileType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (['jpg','jpeg','png','gif'].includes(ext)) return 'image';
+            if (ext === 'pdf') return 'pdf';
+            return 'other';
+        }
+
+        async function loadPostNames() {
+            const res = await fetch('/api/settings/post-names');
+            postNames = await res.json();
+            updatePostTypeDisplay();
+        }
+
+        function getGuardId() {
+            return currentUser?.guard_post || 'pco';
+        }
+
+        function getPostTypeName() {
+            const id = getGuardId();
+            if (id === 'post4') return postNames.post4_name || 'Пост N4';
+            if (id === 'post1') return postNames.post1_name || 'Пост N1';
+            return postNames.pco_name || 'ПЦО';
+        }
+
+        function getPostDescription() {
+            const id = getGuardId();
+            if (id === 'post4') return 'Только машины';
+            if (id === 'post1') return 'Только люди';
+            return 'Все заявки';
+        }
+
+        function getPostDisplayName(postId) {
+            if (postId === 'post4') return postNames.post4_name || 'Пост N4';
+            if (postId === 'post1') return postNames.post1_name || 'Пост N1';
+            if (postId === 'pco') return postNames.pco_name || 'ПЦО';
+            return postId;
+        }
+
+        function getRecipientDisplayName(recipientPost) {
+            if (recipientPost === 'all') return 'Всем постам';
+            if (recipientPost === 'post4') return postNames.post4_name || 'Пост N4';
+            if (recipientPost === 'post1') return postNames.post1_name || 'Пост N1';
+            if (recipientPost === 'pco') return postNames.pco_name || 'ПЦО';
+            return recipientPost;
+        }
+
+        function updatePostTypeDisplay() {
+            const postTypeElement = document.getElementById('postType');
+            if (postTypeElement) {
+                postTypeElement.innerHTML = `${getPostTypeName()} — ${getPostDescription()}`;
+            }
+        }
+
+        function checkAuth() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.role !== 'guard') {
+                window.location.href = '/';
+            } else {
+                document.getElementById('userName').innerHTML = currentUser.full_name;
+                loadPostNames().then(() => {
+                    loadActiveRequests();
+                    loadMessages();
+                    loadUnreadCount();
+                });
+                startMessagePolling();
+            }
+        }
+
+        async function loadMessages() {
+            const post = getGuardId();
+            const res = await fetch(`/api/messages/${post}?user_id=${currentUser.id}`);
+            const messages = await res.json();
+            const container = document.getElementById('chatMessages');
+            
+            if (messages.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 40px;"><i class="fas fa-comment-slash"></i> Нет сообщений</div>';
+                lastMessageCount = 0;
+                return;
+            }
+            
+            if (messages.length > lastMessageCount && lastMessageCount !== 0) playSound();
+            lastMessageCount = messages.length;
+            
+            container.innerHTML = messages.map(msg => {
+                const isSent = msg.sender_id === currentUser.id;
+                const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+                const date = new Date(msg.created_at).toLocaleDateString('ru-RU');
+                let senderDisplay = msg.sender_name;
+                if (msg.sender_post && msg.sender_post !== getGuardId()) {
+                    senderDisplay += ` (${getPostDisplayName(msg.sender_post)})`;
+                }
+                let recipientDisplay = '';
+                if (isSent && msg.recipient_post) {
+                    recipientDisplay = `<div class="message-recipient"><i class="fas fa-arrow-right"></i> ${getRecipientDisplayName(msg.recipient_post)}</div>`;
+                }
+                let headerContent = isSent 
+                    ? `<span class="message-sender"><i class="fas fa-user"></i> Вы</span>${recipientDisplay}<span class="message-time"><i class="far fa-clock"></i> ${date} ${time}</span>`
+                    : `<span class="message-sender"><i class="fas fa-user"></i> ${senderDisplay}</span><span class="message-time"><i class="far fa-clock"></i> ${date} ${time}</span>`;
+                
+                return `<div class="message ${isSent ? 'sent' : 'received'}">
+                    <div class="message-header">${headerContent}</div>
+                    <div class="message-text">${escapeHtml(msg.message)}</div>
+                </div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+            await fetch(`/api/messages/read/${post}`, { method: 'POST' });
+            loadUnreadCount();
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function loadUnreadCount() {
+            const post = getGuardId();
+            const res = await fetch(`/api/messages/unread/${post}`);
+            const data = await res.json();
+            const count = data.count;
+            const badge = document.getElementById('unreadCount');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const recipientSelect = document.getElementById('recipientSelect');
+            const message = messageInput.value.trim();
+            const recipient = recipientSelect.value;
+            if (!message) return;
+            
+            const res = await fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender_id: currentUser.id,
+                    sender_name: currentUser.full_name,
+                    sender_post: getGuardId(),
+                    recipient_post: recipient,
+                    message: message
+                })
+            });
+            
+            if (res.ok) {
+                messageInput.value = '';
+                loadMessages();
+                loadUnreadCount();
+            } else {
+                alert('Ошибка отправки сообщения');
+            }
+        }
+        
+        function startMessagePolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(() => {
+                if (currentTab === 'chat') loadMessages();
+                loadUnreadCount();
+            }, 5000);
+        }
+
+        function getFilesHtml(filesJson) {
+            if (!filesJson) return '';
+            const files = JSON.parse(filesJson);
+            if (files.length === 0) return '';
+            let html = '<div class="file-preview">';
+            files.forEach(file => {
+                const type = getFileType(file);
+                if (type === 'image') html += `<img src="/uploads/${file}" onclick="openFile('/uploads/${file}','image')">`;
+                else if (type === 'pdf') html += `<a class="file-link" onclick="openFile('/uploads/${file}','pdf')"><i class="fas fa-file-pdf"></i> ${file.substring(0,30)}...</a>`;
+                else html += `<a href="/uploads/${file}" target="_blank" class="file-link"><i class="fas fa-file"></i> ${file}</a>`;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        async function loadActiveRequests() {
+            const guardId = getGuardId();
+            const res = await fetch(`/api/guards/active/${guardId}`);
+            const requests = await res.json();
+            const container = document.getElementById('activeRequests');
+            document.getElementById('stats').innerHTML = `<i class="fas fa-clipboard-list"></i> Активных заявок: ${requests.length}`;
+            
+            if (requests.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i> Нет активных заявок</div>';
+                return;
+            }
+            
+            container.innerHTML = requests.map(req => {
+                const typeLabel = req.type === 'car' ? 'Машина' : 'Человек';
+                const typeClass = req.type === 'car' ? 'badge-car' : 'badge-person';
+                return `<div class="request-card">
+                    <div><span class="badge ${typeClass}">${typeLabel}</span> <span class="badge badge-approved">Согласовано</span></div>
+                    <p style="margin-top:12px"><strong>Отправитель:</strong> ${req.sender_name}</p>
+                    <p><strong>Описание:</strong> ${req.description}</p>
+                    <p><strong>Период:</strong> ${req.date_from} — ${req.date_to} (${req.duration_days} дней)</p>
+                    ${getFilesHtml(req.files)}
+                    <small>Создано: ${new Date(req.created_at).toLocaleString()}</small>
+                    <div><button class="btn-complete" onclick="completeRequest(${req.id})"><i class="fas fa-check"></i> Выполнено</button></div>
+                </div>`;
+            }).join('');
+        }
+
+        async function loadArchive() {
+            const guardId = getGuardId();
+            const search = document.getElementById('searchInput')?.value || '';
+            const dateFrom = document.getElementById('dateFrom')?.value || '';
+            const dateTo = document.getElementById('dateTo')?.value || '';
+            let url = `/api/guards/archive/${guardId}?search=${encodeURIComponent(search)}`;
+            if (dateFrom) url += `&date_from=${dateFrom}`;
+            if (dateTo) url += `&date_to=${dateTo}`;
+            const res = await fetch(url);
+            const requests = await res.json();
+            const container = document.getElementById('archiveRequests');
+            
+            if (requests.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-archive"></i> Нет записей в архиве</div>';
+                return;
+            }
+            
+            container.innerHTML = requests.map(req => {
+                const typeLabel = req.type === 'car' ? 'Машина' : 'Человек';
+                const typeClass = req.type === 'car' ? 'badge-car' : 'badge-person';
+                const statusLabel = req.status === 'completed' ? 'Выполнено' : 'Отклонено';
+                const statusClass = req.status === 'completed' ? 'badge-completed' : 'badge-rejected';
+                const cardClass = req.status === 'completed' ? 'completed' : 'rejected';
+                return `<div class="request-card ${cardClass}">
+                    <div><span class="badge ${typeClass}">${typeLabel}</span> <span class="badge ${statusClass}">${statusLabel}</span></div>
+                    <p style="margin-top:12px"><strong>Отправитель:</strong> ${req.sender_name}</p>
+                    <p><strong>Описание:</strong> ${req.description}</p>
+                    <p><strong>Период:</strong> ${req.date_from} — ${req.date_to}</p>
+                    ${getFilesHtml(req.files)}
+                    ${req.reject_reason ? `<p><strong>Причина отказа:</strong> ${req.reject_reason}</p>` : ''}
+                    <small>Создано: ${new Date(req.created_at).toLocaleString()}</small>
+                </div>`;
+            }).join('');
+        }
+
+        async function completeRequest(id) {
+            if (confirm('Отметить заявку как выполненную? Она уйдёт в архив.')) {
+                const res = await fetch(`/api/guards/complete/${id}`, { method: 'POST' });
+                if (res.ok) {
+                    alert('Заявка выполнена');
+                    loadActiveRequests();
+                    if (currentTab === 'archive') loadArchive();
+                }
+            }
+        }
+
+        function showTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                if ((tab === 'active' && i === 0) || (tab === 'archive' && i === 1) || (tab === 'chat' && i === 2)) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            document.getElementById('activeTab').style.display = tab === 'active' ? 'block' : 'none';
+            document.getElementById('archiveTab').style.display = tab === 'archive' ? 'block' : 'none';
+            document.getElementById('chatTab').style.display = tab === 'chat' ? 'block' : 'none';
+            if (tab === 'active') loadActiveRequests();
+            if (tab === 'archive') loadArchive();
+            if (tab === 'chat') loadMessages();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            loadArchive();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
+        }
+
+        checkAuth();
+        setInterval(() => { if (currentTab === 'active') loadActiveRequests(); }, 10000);
+    </script>
+</body>
+</html>

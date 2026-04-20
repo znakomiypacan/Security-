@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2);
+        }
+        .user-info {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .user-info h2 { font-size: 20px; font-weight: 600; }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .tab:hover { background: #f1f5f9; color: #1e3c72; }
+        .tab.active { background: #eef2ff; color: #2a5298; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            border-left: 4px solid #2a5298;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card h3 { font-size: 28px; font-weight: 700; color: #1e293b; }
+        .stat-card p { color: #64748b; margin-top: 8px; font-size: 13px; }
+        
+        .chart-container {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .chart-container h3 { margin-bottom: 16px; color: #1e293b; }
+        .chart-bars {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            height: 200px;
+            margin-top: 20px;
+        }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 8px 8px 0 0;
+            transition: height 0.3s;
+            min-width: 30px;
+        }
+        .chart-label {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 8px;
+            color: #64748b;
+        }
+        
+        .settings-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .settings-section h3 { margin-bottom: 16px; color: #1e293b; font-size: 16px; }
+        .settings-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .settings-row label { width: 220px; font-weight: 500; color: #334155; }
+        .settings-row input, .settings-row textarea {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            min-width: 250px;
+        }
+        .settings-row textarea { font-family: monospace; font-size: 12px; }
+        .btn-save {
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th { background: #f8fafc; font-weight: 600; color: #1e293b; }
+        tr:hover { background: #f1f5f9; }
+        
+        .btn-add, .btn-refresh {
+            background: #2a5298;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            margin-right: 10px;
+        }
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .logout {
+            background: #ef4444;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .role-admin { background: #dc2626; color: white; }
+        .role-chief { background: #f59e0b; color: white; }
+        .role-guard { background: #06b6d4; color: white; }
+        .role-employee { background: #10b981; color: white; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-approved { background: #dcfce7; color: #16a34a; }
+        .status-completed { background: #e2e8f0; color: #475569; }
+        .status-rejected { background: #fee2e2; color: #dc2626; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 28px;
+            border-radius: 24px;
+            width: 600px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        .modal-content h3 { margin-bottom: 20px; }
+        .modal-content input, .modal-content select, .modal-content textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-save-modal { background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; margin-right: 10px; }
+        .btn-cancel { background: #64748b; color: white; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; }
+        
+        .search-filter {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-filter input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            min-width: 150px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .settings-row { flex-direction: column; align-items: flex-start; }
+            .settings-row label { width: 100%; }
+            .settings-row input, .settings-row textarea { width: 100%; }
+            table { font-size: 12px; }
+            th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="user-info">
+                <div><h2><i class="fas fa-shield-alt"></i> Админ-панель</h2><p>Добро пожаловать, <span id="userName"></span></p></div>
+                <button class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('stats')"><i class="fas fa-chart-line"></i> Статистика</button>
+                <button class="tab" onclick="showTab('requests')"><i class="fas fa-clipboard-list"></i> Все заявки</button>
+                <button class="tab" onclick="showTab('users')"><i class="fas fa-users"></i> Пользователи</button>
+                <button class="tab" onclick="showTab('settings')"><i class="fas fa-cog"></i> Настройки</button>
+                <button class="tab" onclick="showTab('chat')"><i class="fas fa-comments"></i> Лог чата</button>
+            </div>
+
+            <div id="statsTab" class="tab-content active">
+                <div class="stats-grid" id="stats"></div>
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-bar"></i> Заявки по дням (последние 7 дней)</h3>
+                    <div class="chart-bars" id="chartBars"></div>
+                </div>
+                <div class="chart-container" style="margin-top: 20px;">
+                    <h3><i class="fas fa-chart-pie"></i> Распределение по типам</h3>
+                    <div id="typeStats" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; padding: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="requestsTab" class="tab-content" style="display: none;">
+                <div class="search-filter">
+                    <input type="text" id="requestSearch" placeholder="Поиск по описанию или отправителю..." onkeyup="loadAllRequests()">
+                    <select id="requestStatusFilter" onchange="loadAllRequests()">
+                        <option value="all">Все статусы</option>
+                        <option value="pending">Ожидает</option>
+                        <option value="approved">Согласована</option>
+                        <option value="completed">Выполнена</option>
+                        <option value="rejected">Отклонена</option>
+                    </select>
+                    <button class="btn-refresh" onclick="loadAllRequests()"><i class="fas fa-sync-alt"></i> Обновить</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Отправитель</th><th>Тип</th><th>Описание</th><th>Период</th><th>Статус</th><th>Действия</th></tr>
+                        </thead>
+                        <tbody id="allRequestsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="usersTab" class="tab-content" style="display: none;">
+                <button class="btn-add" onclick="openAddModal()"><i class="fas fa-plus"></i> Добавить пользователя</button>
+                <button class="btn-refresh" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Обновить</button>
+                <div style="overflow-x: auto; margin-top: 16px;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Логин</th><th>ФИО</th><th>Роль</th><th>Пост</th><th>Email</th><th>Создан</th><th>Действия</th></tr>
+                        </thead>
+                        <tbody id="usersList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="settingsTab" class="tab-content" style="display: none;">
+                <div class="settings-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Названия постов</h3>
+                    <div class="settings-row"><label>Пост N4 (машины):</label><input type="text" id="post4_name" placeholder="Пост N4"></div>
+                    <div class="settings-row"><label>Пост N1 (люди):</label><input type="text" id="post1_name" placeholder="Пост N1"></div>
+                    <div class="settings-row"><label>ПЦО (все заявки):</label><input type="text" id="pco_name" placeholder="ПЦО"></div>
+                </div>
+                <div class="settings-section">
+                    <h3><i class="fas fa-envelope"></i> Email уведомления</h3>
+                    <div class="settings-row"><label>Email отдела кадров (до 3, через запятую):</label><input type="text" id="hr_emails" placeholder="hr1@company.ru, hr2@company.ru, hr3@company.ru"></div>
+                    <div class="settings-row"><label>Порог длительности (дней):</label><input type="number" id="email_notification_days" placeholder="5"></div>
+                    <div class="settings-row"><label>Удалять сообщения чата через (дней):</label><input type="number" id="message_retention_days" placeholder="7"></div>
+                </div>
+                <div class="settings-section">
+                    <h3><i class="fas fa-edit"></i> Шаблон письма в отдел кадров</h3>
+                    <div class="settings-row">
+                        <label>Доступные переменные:</label>
+                        <div style="background: #e2e8f0; padding: 8px; border-radius: 8px; font-size: 12px; font-family: monospace;">
+                            {employee_name} - ФИО сотрудника<br>
+                            {employee_email} - Email сотрудника<br>
+                            {type} - Тип (Машина/Человек)<br>
+                            {description} - Описание заявки<br>
+                            {date_from} - Дата начала<br>
+                            {date_to} - Дата окончания<br>
+                            {duration_days} - Длительность в днях
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <label>Шаблон письма:</label>
+                        <textarea id="email_template" rows="12" style="font-family: monospace; font-size: 12px;"></textarea>
+                    </div>
+                </div>
+                <button class="btn-save" onclick="saveAllSettings()"><i class="fas fa-save"></i> Сохранить все настройки</button>
+            </div>
+
+            <div id="chatTab" class="tab-content" style="display: none;">
+                <div class="search-filter">
+                    <input type="text" id="chatSearch" placeholder="Поиск по сообщениям..." onkeyup="loadChatLogs()">
+                    <button class="btn-refresh" onclick="loadChatLogs()"><i class="fas fa-sync-alt"></i> Обновить</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Отправитель</th><th>Пост</th><th>Кому</th><th>Сообщение</th><th>Дата</th><th>Прочитано</th></tr>
+                        </thead>
+                        <tbody id="chatLogsList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <h3 id="requestModalTitle">Редактирование заявки</h3>
+            <input type="hidden" id="editRequestId">
+            <label>Тип</label>
+            <select id="editType"><option value="car">Машина</option><option value="person">Человек</option></select>
+            <label>Описание</label>
+            <textarea id="editDescription" rows="3"></textarea>
+            <label>Дата от</label>
+            <input type="date" id="editDateFrom">
+            <label>Дата до</label>
+            <input type="date" id="editDateTo">
+            <label>Статус</label>
+            <select id="editStatus">
+                <option value="pending">Ожидает</option>
+                <option value="approved">Согласована</option>
+                <option value="completed">Выполнена</option>
+                <option value="rejected">Отклонена</option>
+            </select>
+            <label>Причина отказа (если есть)</label>
+            <input type="text" id="editRejectReason" placeholder="Причина отказа">
+            <div style="margin-top: 20px;">
+                <button class="btn-save-modal" onclick="saveRequestEdit()">Сохранить</button>
+                <button class="btn-cancel" onclick="closeRequestModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h3 id="userModalTitle">Добавить пользователя</h3>
+            <input type="hidden" id="userId">
+            <input type="text" id="username" placeholder="Логин">
+            <input type="text" id="full_name" placeholder="ФИО">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Пароль">
+            <select id="role">
+                <option value="employee">Сотрудник</option>
+                <option value="chief">Начальник охраны</option>
+                <option value="guard">Охрана</option>
+            </select>
+            <select id="guard_post" style="display: none;">
+                <option value="">Выберите пост</option>
+                <option value="post4">Пост N4 (Машины)</option>
+                <option value="post1">Пост N1 (Люди)</option>
+                <option value="pco">ПЦО (Все заявки)</option>
+            </select>
+            <div style="margin-top: 20px;">
+                <button class="btn-save-modal" onclick="saveUser()">Сохранить</button>
+                <button class="btn-cancel" onclick="closeUserModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let allRequests = [];
+
+        function checkAuth() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.role !== 'admin') {
+                window.location.href = '/';
+            } else {
+                document.getElementById('userName').innerHTML = currentUser.full_name;
+                loadStats();
+                loadUsers();
+                loadSettings();
+                loadAllRequests();
+                loadChatLogs();
+            }
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                const tabNames = ['stats', 'requests', 'users', 'settings', 'chat'];
+                t.classList.toggle('active', tabNames[i] === tab);
+            });
+            document.getElementById('statsTab').style.display = tab === 'stats' ? 'block' : 'none';
+            document.getElementById('requestsTab').style.display = tab === 'requests' ? 'block' : 'none';
+            document.getElementById('usersTab').style.display = tab === 'users' ? 'block' : 'none';
+            document.getElementById('settingsTab').style.display = tab === 'settings' ? 'block' : 'none';
+            document.getElementById('chatTab').style.display = tab === 'chat' ? 'block' : 'none';
+            
+            if (tab === 'stats') loadStats();
+            if (tab === 'requests') loadAllRequests();
+            if (tab === 'users') loadUsers();
+            if (tab === 'chat') loadChatLogs();
+        }
+
+        async function loadStats() {
+            const res = await fetch('/api/admin/stats');
+            const stats = await res.json();
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card"><h3>${stats.total_employees||0}</h3><p>Сотрудников</p></div>
+                <div class="stat-card"><h3>${stats.total_guards||0}</h3><p>Охранников</p></div>
+                <div class="stat-card"><h3>${stats.pending_requests||0}</h3><p>Ожидают</p></div>
+                <div class="stat-card"><h3>${stats.active_requests||0}</h3><p>Активных</p></div>
+                <div class="stat-card"><h3>${stats.completed_requests||0}</h3><p>Выполнено</p></div>
+                <div class="stat-card"><h3>${stats.rejected_requests||0}</h3><p>Отклонено</p></div>
+            `;
+            
+            const chartRes = await fetch('/api/admin/stats/daily');
+            const daily = await chartRes.json();
+            const maxCount = Math.max(...daily.map(d => d.count), 1);
+            const barsHtml = daily.map(day => `
+                <div style="flex:1; text-align:center;">
+                    <div class="chart-bar" style="height: ${(day.count / maxCount) * 150}px;"></div>
+                    <div class="chart-label">${day.date.slice(5)}</div>
+                    <div class="chart-label" style="font-weight:bold;">${day.count}</div>
+                </div>
+            `).join('');
+            document.getElementById('chartBars').innerHTML = barsHtml;
+            
+            const typeRes = await fetch('/api/admin/stats/types');
+            const types = await typeRes.json();
+            const total = types.car + types.person;
+            document.getElementById('typeStats').innerHTML = `
+                <div class="stat-card" style="background: #dbeafe;"><h3>${types.car}</h3><p>Машины (${total ? Math.round(types.car/total*100) : 0}%)</p></div>
+                <div class="stat-card" style="background: #dcfce7;"><h3>${types.person}</h3><p>Люди (${total ? Math.round(types.person/total*100) : 0}%)</p></div>
+            `;
+        }
+
+        async function loadAllRequests() {
+            const search = document.getElementById('requestSearch')?.value || '';
+            const status = document.getElementById('requestStatusFilter')?.value || 'all';
+            const res = await fetch(`/api/admin/requests?search=${encodeURIComponent(search)}&status=${status}`);
+            const requests = await res.json();
+            allRequests = requests;
+            
+            const tbody = document.getElementById('allRequestsList');
+            if (requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Нет заявок</td>' + '<tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map(req => {
+                let statusClass = '';
+                let statusText = '';
+                switch(req.status) {
+                    case 'pending': statusClass='status-pending'; statusText='Ожидает'; break;
+                    case 'approved': statusClass='status-approved'; statusText='Согласована'; break;
+                    case 'completed': statusClass='status-completed'; statusText='Выполнена'; break;
+                    case 'rejected': statusClass='status-rejected'; statusText='Отклонена'; break;
+                }
+                return `<tr>
+                    <td>${req.id}</td>
+                    <td>${req.sender_name || req.sender_id}</td>
+                    <td>${req.type === 'car' ? 'Машина' : 'Человек'}</td>
+                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">${req.description}</td>
+                    <td>${req.date_from} — ${req.date_to}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td><button class="btn-edit" onclick="openRequestModal(${req.id})"><i class="fas fa-edit"></i></button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function openRequestModal(id) {
+            const req = allRequests.find(r => r.id === id);
+            if (!req) return;
+            document.getElementById('editRequestId').value = req.id;
+            document.getElementById('editType').value = req.type;
+            document.getElementById('editDescription').value = req.description;
+            document.getElementById('editDateFrom').value = req.date_from;
+            document.getElementById('editDateTo').value = req.date_to;
+            document.getElementById('editStatus').value = req.status;
+            document.getElementById('editRejectReason').value = req.reject_reason || '';
+            document.getElementById('requestModalTitle').innerText = `Редактирование заявки №${req.id}`;
+            document.getElementById('requestModal').style.display = 'flex';
+        }
+
+        async function saveRequestEdit() {
+            const id = document.getElementById('editRequestId').value;
+            const data = {
+                type: document.getElementById('editType').value,
+                description: document.getElementById('editDescription').value,
+                date_from: document.getElementById('editDateFrom').value,
+                date_to: document.getElementById('editDateTo').value,
+                status: document.getElementById('editStatus').value,
+                reject_reason: document.getElementById('editRejectReason').value
+            };
+            const res = await fetch(`/api/admin/requests/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                alert('Заявка обновлена');
+                closeRequestModal();
+                loadAllRequests();
+                loadStats();
+            } else {
+                alert('Ошибка обновления');
+            }
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestModal').style.display = 'none';
+        }
+
+        async function loadUsers() {
+            const res = await fetch('/api/admin/users');
+            const users = await res.json();
+            const tbody = document.getElementById('usersList');
+            tbody.innerHTML = users.map(u => {
+                let roleClass = '', roleName = '';
+                switch(u.role) {
+                    case 'admin': roleClass='role-admin'; roleName='Админ'; break;
+                    case 'chief': roleClass='role-chief'; roleName='Нач. охраны'; break;
+                    case 'guard': roleClass='role-guard'; roleName='Охрана'; break;
+                    default: roleClass='role-employee'; roleName='Сотрудник';
+                }
+                let postName = '';
+                if (u.guard_post === 'post4') postName = 'Пост N4';
+                else if (u.guard_post === 'post1') postName = 'Пост N1';
+                else if (u.guard_post === 'pco') postName = 'ПЦО';
+                else postName = '-';
+                const created = u.created_at ? new Date(u.created_at).toLocaleDateString() : '-';
+                return `<tr>
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.full_name}</td>
+                    <td><span class="role-badge ${roleClass}">${roleName}</span></td>
+                    <td>${postName}</td>
+                    <td>${u.email || '-'}</td>
+                    <td>${created}</td>
+                    <td>${u.role !== 'admin' ? `<button class="btn-edit" onclick="editUser(${u.id},'${u.username}','${u.full_name}','${u.role}','${u.guard_post||''}','${u.email||''}')"><i class="fas fa-edit"></i></button><button class="btn-delete" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i></button>` : '<span style="color:#999;">Системный</span>'}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function loadSettings() {
+            const res = await fetch('/api/admin/settings');
+            const s = await res.json();
+            document.getElementById('post4_name').value = s.post4_name || 'Пост N4';
+            document.getElementById('post1_name').value = s.post1_name || 'Пост N1';
+            document.getElementById('pco_name').value = s.pco_name || 'ПЦО';
+            document.getElementById('hr_emails').value = s.hr_emails || 'hr1@company.ru, hr2@company.ru, hr3@company.ru';
+            document.getElementById('email_notification_days').value = s.email_notification_days || '5';
+            document.getElementById('message_retention_days').value = s.message_retention_days || '7';
+            document.getElementById('email_template').value = s.email_template || '';
+        }
+
+        async function saveAllSettings() {
+            const settings = {
+                post4_name: document.getElementById('post4_name').value,
+                post1_name: document.getElementById('post1_name').value,
+                pco_name: document.getElementById('pco_name').value,
+                hr_emails: document.getElementById('hr_emails').value,
+                email_notification_days: document.getElementById('email_notification_days').value,
+                message_retention_days: document.getElementById('message_retention_days').value,
+                email_template: document.getElementById('email_template').value
+            };
+            const res = await fetch('/api/admin/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            });
+            if (res.ok) alert('Настройки сохранены');
+            else alert('Ошибка');
+        }
+
+        async function loadChatLogs() {
+            const search = document.getElementById('chatSearch')?.value || '';
+            const res = await fetch(`/api/admin/chat-logs?search=${encodeURIComponent(search)}`);
+            const logs = await res.json();
+            const tbody = document.getElementById('chatLogsList');
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Нет сообщений</td>' + '</tr>';
+                return;
+            }
+            tbody.innerHTML = logs.map(log => {
+                const postName = log.sender_post === 'post4' ? 'Пост N4' : log.sender_post === 'post1' ? 'Пост N1' : log.sender_post === 'pco' ? 'ПЦО' : log.sender_post;
+                const recipientName = log.recipient_post === 'all' ? 'Всем' : (log.recipient_post === 'post4' ? 'Пост N4' : log.recipient_post === 'post1' ? 'Пост N1' : log.recipient_post === 'pco' ? 'ПЦО' : log.recipient_post);
+                return `<tr>
+                    <td>${log.id}</td>
+                    <td>${log.sender_name}</td>
+                    <td>${postName}</td>
+                    <td>${recipientName}</td>
+                    <td style="max-width:300px;">${log.message}</td>
+                    <td>${new Date(log.created_at).toLocaleString()}</td>
+                    <td>${log.is_read ? 'Да' : 'Нет'}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('userModalTitle').innerText = 'Добавить пользователя';
+            document.getElementById('userId').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('full_name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('role').value = 'employee';
+            document.getElementById('guard_post').style.display = 'none';
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
+        function editUser(id, username, full_name, role, guard_post, email) {
+            document.getElementById('userModalTitle').innerText = 'Редактировать пользователя';
+            document.getElementById('userId').value = id;
+            document.getElementById('username').value = username;
+            document.getElementById('full_name').value = full_name;
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = '';
+            document.getElementById('role').value = role;
+            document.getElementById('guard_post').style.display = role === 'guard' ? 'block' : 'none';
+            if (role === 'guard') document.getElementById('guard_post').value = guard_post;
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
+        document.getElementById('role').addEventListener('change', function() {
+            document.getElementById('guard_post').style.display = this.value === 'guard' ? 'block' : 'none';
+        });
+
+        async function saveUser() {
+            const id = document.getElementById('userId').value;
+            const username = document.getElementById('username').value;
+            const full_name = document.getElementById('full_name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const guard_post = document.getElementById('guard_post').value;
+            if (!username || !full_name) { alert('Заполните обязательные поля'); return; }
+            if (!id && !password) { alert('Введите пароль'); return; }
+            const data = { username, full_name, role, guard_post, email };
+            if (password) data.password = password;
+            const url = id ? `/api/admin/users/${id}` : '/api/admin/users';
+            const method = id ? 'PUT' : 'POST';
+            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            if (res.ok) { alert('Сохранено'); closeUserModal(); loadUsers(); loadStats(); }
+            else alert('Ошибка');
+        }
+
+        async function deleteUser(id) {
+            if (confirm('Удалить пользователя?')) {
+                const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+                if (res.ok) { alert('Удалён'); loadUsers(); loadStats(); }
+                else alert('Ошибка');
+            }
+        }
+
+        function closeUserModal() { document.getElementById('userModal').style.display = 'none'; }
+        function logout() { localStorage.removeItem('currentUser'); window.location.href = '/'; }
+
+        checkAuth();
+    </script>
+</body>
+</html>

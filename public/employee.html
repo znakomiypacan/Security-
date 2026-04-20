@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сотрудник - Отправка заявок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2);
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #2a5298;
+            padding-left: 16px;
+        }
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 20px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-info {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .user-info h2 { color: white; border-left-color: #ff4d4d; margin-bottom: 4px; }
+        .user-info p { font-size: 14px; opacity: 0.9; }
+        
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 8px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { background: #f1f5f9; color: #1e3c72; }
+        .tab-btn.active { background: #eef2ff; color: #2a5298; }
+        
+        .form-group { margin-bottom: 24px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        select, textarea, input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+        }
+        select:focus, textarea:focus, input:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42,82,152,0.1);
+        }
+        .date-group { display: flex; gap: 16px; }
+        .date-group .form-group { flex: 1; }
+        
+        button {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(42,82,152,0.4);
+        }
+        .logout {
+            background: #ef4444;
+        }
+        .logout:hover { background: #dc2626; transform: none; }
+        
+        /* Карточки заявок */
+        .request-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .request-card:hover {
+            border-color: #2a5298;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .request-card.pending {
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+        }
+        .request-card.approved {
+            border-left: 4px solid #10b981;
+        }
+        .request-card.rejected {
+            border-left: 4px solid #ef4444;
+            opacity: 0.8;
+        }
+        .request-card.completed {
+            border-left: 4px solid #6b7280;
+            background: #f1f5f9;
+        }
+        
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .request-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .type-car { background: #dbeafe; color: #2563eb; }
+        .type-person { background: #dcfce7; color: #16a34a; }
+        .request-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-approved { background: #dcfce7; color: #16a34a; }
+        .status-rejected { background: #fee2e2; color: #dc2626; }
+        .status-completed { background: #e2e8f0; color: #475569; }
+        
+        .request-date {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .request-description {
+            color: #334155;
+            margin: 12px 0;
+            line-height: 1.5;
+        }
+        .request-period {
+            font-size: 13px;
+            color: #475569;
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        
+        .file-preview {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .file-preview img:hover { transform: scale(1.05); border-color: #2a5298; }
+        .file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #334155;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .file-link:hover { background: #e2e8f0; }
+        
+        .file-list {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 16px;
+            margin-top: 12px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: 12px;
+        }
+        .remove-file {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            background: #f8fafc;
+            border-radius: 20px;
+        }
+        
+        .opening-item {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #ff4d4d;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content { max-width: 90%; max-height: 90%; border-radius: 16px; }
+        .modal-content-pdf { width: 90%; height: 90%; border: none; border-radius: 16px; }
+        .close-modal { position: absolute; top: 20px; right: 35px; color: white; font-size: 40px; cursor: pointer; }
+        
+        .badge-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .badge-pending { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; }
+        .badge-approved { background: #10b981; box-shadow: 0 0 5px #10b981; }
+        
+        @media (max-width: 640px) {
+            .request-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="user-info">
+                <div><h2>Добро пожаловать, <span id="userName"></span></h2><p>Сотрудник</p></div>
+                <button class="logout" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('request')">Новая заявка</button>
+                <button class="tab-btn" onclick="showTab('opening')">Открытие цеха/склада</button>
+                <button class="tab-btn" onclick="showTab('history')">Мои заявки</button>
+                <button class="tab-btn" onclick="showTab('openingsHistory')">Уведомления ПЦО</button>
+            </div>
+
+            <!-- Вкладка: Новая заявка -->
+            <div id="requestTab">
+                <h2><i class="fas fa-pen-alt"></i> Новая заявка</h2>
+                <form id="requestForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Тип заявки</label>
+                        <select id="type" required>
+                            <option value="car">🚗 Машина</option>
+                            <option value="person">👤 Человек</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea id="description" rows="4" required placeholder="Подробное описание..."></textarea>
+                    </div>
+                    <div class="date-group">
+                        <div class="form-group"><label>Дата от</label><input type="date" id="date_from" required></div>
+                        <div class="form-group"><label>Дата до</label><input type="date" id="date_to" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Прикрепить файлы (до 5)</label>
+                        <input type="file" id="files" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt">
+                        <div id="fileList" class="file-list"></div>
+                    </div>
+                    <button type="submit">Отправить заявку</button>
+                </form>
+            </div>
+
+            <!-- Вкладка: Открытие объекта -->
+            <div id="openingTab" style="display: none;">
+                <h2><i class="fas fa-door-open"></i> Уведомление об открытии</h2>
+                <div class="form-group">
+                    <label>Тип объекта</label>
+                    <select id="object_type" required>
+                        <option value="shop">🏭 Цех</option>
+                        <option value="warehouse">📦 Склад</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Номер объекта</label>
+                    <input type="text" id="object_number" placeholder="Например: №3 или А-12" required>
+                </div>
+                <div class="form-group">
+                    <label>Причина / Дополнительная информация</label>
+                    <textarea id="opening_description" rows="3" placeholder="Укажите причину открытия, цель работ..."></textarea>
+                </div>
+                <button type="button" onclick="sendOpeningNotification()">Отправить уведомление ПЦО</button>
+            </div>
+
+            <!-- Вкладка: Мои заявки (активные + архив) -->
+            <div id="historyTab" style="display: none;">
+                <!-- Активные заявки -->
+                <div id="activeRequestsSection">
+                    <h2><span class="badge-icon badge-pending"></span> Активные заявки <span id="activeCount" style="font-size: 14px; color: #64748b;"></span></h2>
+                    <div id="activeRequestsList"></div>
+                </div>
+                
+                <!-- Архив заявок -->
+                <div id="archiveRequestsSection" style="margin-top: 32px;">
+                    <h2><span class="badge-icon badge-approved"></span> Архив заявок <span id="archiveCount" style="font-size: 14px; color: #64748b;"></span></h2>
+                    <div id="archiveRequestsList"></div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Уведомления ПЦО -->
+            <div id="openingsHistoryTab" style="display: none;">
+                <h2><i class="fas fa-bell"></i> Мои уведомления об открытии</h2>
+                <div id="myOpenings"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeModalIfBackground(event)">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage" style="display: none;">
+        <iframe class="modal-content-pdf" id="modalPdf" style="display: none;"></iframe>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let selectedFiles = [];
+
+        function openFile(fileUrl, fileType) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const modalPdf = document.getElementById('modalPdf');
+            modalImg.style.display = 'none';
+            modalPdf.style.display = 'none';
+            if (fileType === 'pdf') {
+                modalPdf.style.display = 'block';
+                modalPdf.src = fileUrl;
+            } else if (fileType === 'image') {
+                modalImg.style.display = 'block';
+                modalImg.src = fileUrl;
+            } else {
+                window.open(fileUrl, '_blank');
+                return;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.getElementById('modalPdf').src = '';
+        }
+
+        function closeModalIfBackground(event) {
+            if (event.target === document.getElementById('imageModal')) closeModal();
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        function getFileType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (['jpg','jpeg','png','gif'].includes(ext)) return 'image';
+            if (ext === 'pdf') return 'pdf';
+            return 'other';
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return { text: 'Ожидает решения', class: 'status-pending' };
+                case 'approved': return { text: 'Согласована', class: 'status-approved' };
+                case 'rejected': return { text: 'Отклонена', class: 'status-rejected' };
+                case 'completed': return { text: 'Выполнена', class: 'status-completed' };
+                default: return { text: status, class: 'status-pending' };
+            }
+        }
+
+        function updateFileList() {
+            const container = document.getElementById('fileList');
+            container.innerHTML = '';
+            if (selectedFiles.length === 0) {
+                container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:12px;">Файлы не выбраны</div>';
+                return;
+            }
+            selectedFiles.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<span>${file.name} (${(file.size/1024).toFixed(1)} KB)</span><button class="remove-file" onclick="removeFile(${index})">Удалить</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            const dt = new DataTransfer();
+            selectedFiles.forEach(f => dt.items.add(f));
+            document.getElementById('files').files = dt.files;
+        }
+
+        document.getElementById('files').addEventListener('change', e => {
+            const newFiles = Array.from(e.target.files);
+            if (selectedFiles.length + newFiles.length > 5) { alert('Можно не более 5 файлов'); return; }
+            selectedFiles = [...selectedFiles, ...newFiles];
+            updateFileList();
+        });
+
+        function checkAuth() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.role !== 'employee') {
+                window.location.href = '/';
+            } else {
+                document.getElementById('userName').innerHTML = currentUser.full_name;
+                loadMyRequests();
+                loadMyOpenings();
+            }
+        }
+
+        // Загрузка заявок (активные и архив)
+        async function loadMyRequests() {
+            const res = await fetch(`/api/employee/my-requests/${currentUser.id}`);
+            const requests = await res.json();
+            
+            // Активные (pending)
+            const active = requests.filter(r => r.status === 'pending');
+            // Архив (approved, rejected, completed)
+            const archive = requests.filter(r => ['approved', 'rejected', 'completed'].includes(r.status));
+            
+            document.getElementById('activeCount').innerHTML = `(${active.length})`;
+            document.getElementById('archiveCount').innerHTML = `(${archive.length})`;
+            
+            // Отображение активных заявок
+            const activeContainer = document.getElementById('activeRequestsList');
+            if (active.length === 0) {
+                activeContainer.innerHTML = '<div class="empty-state">Нет активных заявок</div>';
+            } else {
+                activeContainer.innerHTML = active.map(req => renderRequestCard(req)).join('');
+            }
+            
+            // Отображение архива
+            const archiveContainer = document.getElementById('archiveRequestsList');
+            if (archive.length === 0) {
+                archiveContainer.innerHTML = '<div class="empty-state">Архив пуст</div>';
+            } else {
+                archiveContainer.innerHTML = archive.map(req => renderRequestCard(req)).join('');
+            }
+        }
+
+        function renderRequestCard(req) {
+            const status = getStatusText(req.status);
+            let filesHtml = '';
+            if (req.files) {
+                const files = JSON.parse(req.files);
+                if (files.length) {
+                    filesHtml = '<div class="file-preview">';
+                    files.forEach(f => {
+                        const type = getFileType(f);
+                        if (type === 'image') filesHtml += `<img src="/uploads/${f}" onclick="openFile('/uploads/${f}','image')" title="${f}">`;
+                        else if (type === 'pdf') filesHtml += `<a class="file-link" onclick="openFile('/uploads/${f}','pdf')">📄 PDF: ${f.substring(0,30)}...</a>`;
+                        else filesHtml += `<a href="/uploads/${f}" target="_blank" class="file-link">📎 ${f}</a>`;
+                    });
+                    filesHtml += '</div>';
+                }
+            }
+            
+            const cardClass = req.status === 'pending' ? 'pending' : (req.status === 'approved' ? 'approved' : (req.status === 'rejected' ? 'rejected' : 'completed'));
+            const typeClass = req.type === 'car' ? 'type-car' : 'type-person';
+            const typeText = req.type === 'car' ? '🚗 Машина' : '👤 Человек';
+            
+            return `
+                <div class="request-card ${cardClass}">
+                    <div class="request-header">
+                        <div>
+                            <span class="request-type ${typeClass}">${typeText}</span>
+                            <span class="request-status ${status.class}">${status.text}</span>
+                        </div>
+                        <div class="request-date">№${req.id} • ${new Date(req.created_at).toLocaleString()}</div>
+                    </div>
+                    <div class="request-description">${escapeHtml(req.description)}</div>
+                    <div class="request-period"><i class="far fa-calendar-alt"></i> ${req.date_from} — ${req.date_to} (${req.duration_days} дней)</div>
+                    ${filesHtml}
+                    ${req.reject_reason ? `<div style="margin-top: 12px; padding: 8px 12px; background: #fee2e2; border-radius: 12px; font-size: 13px;"><strong>Причина отказа:</strong> ${escapeHtml(req.reject_reason)}</div>` : ''}
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Загрузка уведомлений об открытии
+        async function loadMyOpenings() {
+            const res = await fetch(`/api/employee/my-openings/${currentUser.id}`);
+            const openings = await res.json();
+            const container = document.getElementById('myOpenings');
+            
+            if (!openings.length) {
+                container.innerHTML = '<div class="empty-state">У вас пока нет уведомлений об открытии</div>';
+                return;
+            }
+            
+            container.innerHTML = openings.map(o => {
+                let statusClass = '', statusText = '';
+                switch(o.status) {
+                    case 'pending': statusClass = 'status-pending'; statusText = 'Ожидает подтверждения ПЦО'; break;
+                    case 'confirmed': statusClass = 'status-approved'; statusText = 'Подтверждено ПЦО'; break;
+                    case 'closed': statusClass = 'status-completed'; statusText = 'Закрыто'; break;
+                    default: statusClass = 'status-pending'; statusText = o.status;
+                }
+                
+                return `<div class="opening-item">
+                    <div class="request-header">
+                        <div><strong>${o.object_type === 'shop' ? '🏭 Цех' : '📦 Склад'} №${o.object_number}</strong></div>
+                        <div class="request-date">${new Date(o.created_at).toLocaleString()}</div>
+                    </div>
+                    <div class="request-description">${o.description || 'Причина не указана'}</div>
+                    <div><span class="request-status ${statusClass}">${statusText}</span></div>
+                    ${o.confirmed_by ? `<div style="margin-top: 8px; font-size: 13px; color: #64748b;">Подтвердил: ${o.confirmed_by}</div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        // Отправка обычной заявки
+        document.getElementById('requestForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const dateFrom = document.getElementById('date_from').value;
+            const dateTo = document.getElementById('date_to').value;
+            if (!dateFrom || !dateTo) { alert('Укажите период'); return; }
+            if (new Date(dateFrom) > new Date(dateTo)) { alert('Дата от не может быть позже даты до'); return; }
+            
+            const formData = new FormData();
+            formData.append('sender_id', currentUser.id);
+            formData.append('type', document.getElementById('type').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('date_from', dateFrom);
+            formData.append('date_to', dateTo);
+            selectedFiles.forEach(f => formData.append('files', f));
+            
+            const res = await fetch('/api/employee/request', { method: 'POST', body: formData });
+            const result = await res.json();
+            if (res.ok) {
+                alert('Заявка отправлена');
+                document.getElementById('requestForm').reset();
+                selectedFiles = [];
+                updateFileList();
+                loadMyRequests();
+            } else alert('Ошибка отправки');
+        };
+
+        // Отправка уведомления об открытии
+        async function sendOpeningNotification() {
+            const object_type = document.getElementById('object_type').value;
+            const object_number = document.getElementById('object_number').value;
+            const description = document.getElementById('opening_description').value;
+            
+            if (!object_number) {
+                alert('Укажите номер объекта');
+                return;
+            }
+            
+            const res = await fetch('/api/employee/opening', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender_id: currentUser.id,
+                    sender_name: currentUser.full_name,
+                    object_type: object_type,
+                    object_number: object_number,
+                    description: description
+                })
+            });
+            
+            if (res.ok) {
+                alert('Уведомление отправлено ПЦО');
+                document.getElementById('object_number').value = '';
+                document.getElementById('opening_description').value = '';
+                loadMyOpenings();
+            } else {
+                const err = await res.json();
+                alert('Ошибка отправки: ' + (err.error || 'Неизвестная ошибка'));
+            }
+        }
+
+        // Переключение вкладок
+        function showTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (tab === 'request') {
+                document.querySelector('.tab-btn').classList.add('active');
+                document.getElementById('requestTab').style.display = 'block';
+                document.getElementById('openingTab').style.display = 'none';
+                document.getElementById('historyTab').style.display = 'none';
+                document.getElementById('openingsHistoryTab').style.display = 'none';
+            } else if (tab === 'opening') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('requestTab').style.display = 'none';
+                document.getElementById('openingTab').style.display = 'block';
+                document.getElementById('historyTab').style.display = 'none';
+                document.getElementById('openingsHistoryTab').style.display = 'none';
+            } else if (tab === 'history') {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('requestTab').style.display = 'none';
+                document.getElementById('openingTab').style.display = 'none';
+                document.getElementById('historyTab').style.display = 'block';
+                document.getElementById('openingsHistoryTab').style.display = 'none';
+                loadMyRequests();
+            } else {
+                document.querySelectorAll('.tab-btn')[3].classList.add('active');
+                document.getElementById('requestTab').style.display = 'none';
+                document.getElementById('openingTab').style.display = 'none';
+                document.getElementById('historyTab').style.display = 'none';
+                document.getElementById('openingsHistoryTab').style.display = 'block';
+                loadMyOpenings();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
+        }
+
+        checkAuth();
+        setInterval(() => {
+            loadMyRequests();
+            loadMyOpenings();
+        }, 10000);
+        updateFileList();
+    </script>
+</body>
+</html>

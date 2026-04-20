@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Начальник охраны - Панель управления</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2);
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #2a5298;
+            padding-left: 16px;
+        }
+        .user-info {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info h2 { color: white; border-left-color: #ff4d4d; margin-bottom: 4px; }
+        .user-info p { font-size: 14px; opacity: 0.9; }
+        
+        .request-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .request-card:hover {
+            border-color: #2a5298;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .request-card.pending {
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .request-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .type-car { background: #dbeafe; color: #2563eb; }
+        .type-person { background: #dcfce7; color: #16a34a; }
+        .request-date {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .duration-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #fef3c7;
+            color: #d97706;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 12px;
+        }
+        .btn-approve {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-right: 12px;
+            font-weight: 500;
+        }
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .logout {
+            background: #ef4444;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .file-preview {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+        }
+        .file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #334155;
+            font-size: 13px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+        }
+        .stats-bar {
+            background: #f1f5f9;
+            padding: 12px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #334155;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content { max-width: 90%; max-height: 90%; border-radius: 16px; }
+        .modal-content-pdf { width: 90%; height: 90%; border: none; border-radius: 16px; }
+        .close-modal { position: absolute; top: 20px; right: 35px; color: white; font-size: 40px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="user-info">
+                <div><h2>Добро пожаловать, <span id="userName"></span></h2><p>Начальник охраны</p></div>
+                <button class="logout" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+        <div class="card">
+            <h2><i class="fas fa-clock"></i> Заявки на рассмотрение</h2>
+            <div class="stats-bar" id="statsBar"></div>
+            <div id="pendingRequests"></div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeModalIfBackground(event)">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage" style="display: none;">
+        <iframe class="modal-content-pdf" id="modalPdf" style="display: none;"></iframe>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        function openFile(url, type) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            const pdf = document.getElementById('modalPdf');
+            img.style.display = 'none';
+            pdf.style.display = 'none';
+            if (type === 'pdf') {
+                pdf.style.display = 'block';
+                pdf.src = url;
+            } else {
+                img.style.display = 'block';
+                img.src = url;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.getElementById('modalPdf').src = '';
+        }
+
+        function closeModalIfBackground(e) {
+            if (e.target === document.getElementById('imageModal')) closeModal();
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        function getFileType(f) {
+            const ext = f.split('.').pop().toLowerCase();
+            return ['jpg','jpeg','png','gif'].includes(ext) ? 'image' : ext === 'pdf' ? 'pdf' : 'other';
+        }
+
+        function checkAuth() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.role !== 'chief') {
+                window.location.href = '/';
+            } else {
+                document.getElementById('userName').innerHTML = currentUser.full_name;
+                loadPending();
+            }
+        }
+
+        async function loadPending() {
+            const res = await fetch('/api/chief/pending');
+            const requests = await res.json();
+            const container = document.getElementById('pendingRequests');
+            const statsBar = document.getElementById('statsBar');
+            
+            statsBar.innerHTML = `<i class="fas fa-inbox"></i> Всего заявок на рассмотрение: ${requests.length}`;
+            
+            if (!requests.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i> Нет новых заявок</div>';
+                return;
+            }
+            
+            container.innerHTML = requests.map(req => {
+                let filesHtml = '';
+                if (req.files) {
+                    const files = JSON.parse(req.files);
+                    if (files.length) {
+                        filesHtml = '<div class="file-preview">';
+                        files.forEach(f => {
+                            const t = getFileType(f);
+                            if (t === 'image') filesHtml += `<img src="/uploads/${f}" onclick="openFile('/uploads/${f}','image')">`;
+                            else if (t === 'pdf') filesHtml += `<a class="file-link" onclick="openFile('/uploads/${f}','pdf')"><i class="fas fa-file-pdf"></i> ${f.substring(0,30)}...</a>`;
+                            else filesHtml += `<a href="/uploads/${f}" target="_blank" class="file-link"><i class="fas fa-file"></i> ${f}</a>`;
+                        });
+                        filesHtml += '</div>';
+                    }
+                }
+                const isLong = req.duration_days > 5;
+                const typeClass = req.type === 'car' ? 'type-car' : 'type-person';
+                const typeText = req.type === 'car' ? '🚗 Машина' : '👤 Человек';
+                
+                return `<div class="request-card pending">
+                    <div class="request-header">
+                        <div>
+                            <span class="request-type ${typeClass}">${typeText}</span>
+                            <span class="duration-badge"><i class="far fa-calendar-alt"></i> ${req.duration_days} дней</span>
+                        </div>
+                        <div class="request-date">№${req.id} • ${new Date(req.created_at).toLocaleString()}</div>
+                    </div>
+                    <p><strong>Отправитель:</strong> ${req.sender_name}</p>
+                    <p><strong>Описание:</strong> ${req.description}</p>
+                    <p><strong>Период:</strong> ${req.date_from} — ${req.date_to}</p>
+                    ${filesHtml}
+                    <div style="margin-top: 20px;">
+                        <button class="btn-approve" onclick="approve(${req.id})"><i class="fas fa-check"></i> Согласовать</button>
+                        <button class="btn-reject" onclick="reject(${req.id})"><i class="fas fa-times"></i> Отклонить</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function approve(id) {
+            const res = await fetch(`/api/chief/approve/${id}`, { method: 'POST' });
+            if (res.ok) {
+                alert('Заявка согласована');
+                loadPending();
+            }
+        }
+
+        async function reject(id) {
+            const reason = prompt('Укажите причину отказа:');
+            if (reason && reason.trim()) {
+                const res = await fetch(`/api/chief/reject/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                if (res.ok) {
+                    alert('Отказ отправлен сотруднику');
+                    loadPending();
+                }
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
+        }
+
+        checkAuth();
+        setInterval(loadPending, 5000);
+    </script>
+</body>
+</html>
